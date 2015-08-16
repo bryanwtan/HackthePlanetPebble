@@ -1,17 +1,17 @@
 var express = require('express');
 var app = express();
-const PORT = process.env.PORT || 3000;
-
 app.use('/', express.static('public'));
 
-// Start the server
-app.listen(PORT, function(err) {
-    // Check if we have an error, if we do - reporrt it
-    if (err) {
-        console.error('There was a problem starting the server:', err);
-    }
-    else {
-        // The server started successfully
-        console.log('Server is listening on port', PORT);
-    }
+var twiliojs = require('./twilio.js');
+const PORT = process.env.PORT || 8080;
+var server = app.listen(PORT);
+var io = require('socket.io')(server);
+
+// socket request handling
+io.on('connection', function(socket) {
+    socket.emit('initial', 'io: connected');
+
+    socket.on('text', function(data) {
+        twiliojs.send_this_message( data );
+    });
 });
